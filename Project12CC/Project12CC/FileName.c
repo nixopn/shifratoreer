@@ -340,7 +340,6 @@ int main() {
                     return 1;
                 }
                 filename = buffer;
-                free(buffer);
             }
         }
     }
