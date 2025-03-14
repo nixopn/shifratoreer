@@ -1,0 +1,10 @@
+﻿  FileName.c
+C:\Users\eisne\source\repos\Project12CC\Project12CC\FileName.c(114,35): warning C4267: функция: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\eisne\source\repos\Project12CC\Project12CC\FileName.c(140,35): warning C4267: функция: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\eisne\source\repos\Project12CC\Project12CC\FileName.c(160,58): warning C4267: функция: преобразование из "size_t" в "DWORD"; возможна потеря данных
+C:\Users\eisne\source\repos\Project12CC\Project12CC\FileName.c(242,35): warning C4267: функция: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\eisne\source\repos\Project12CC\Project12CC\FileName.c(262,58): warning C4267: функция: преобразование из "size_t" в "DWORD"; возможна потеря данных
+C:\Users\eisne\source\repos\Project12CC\Project12CC\FileName.c(331,35): warning C4267: функция: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\eisne\source\repos\Project12CC\Project12CC\FileName.c(198,50): warning C4267: инициализация: преобразование из "size_t" в "DWORD"; возможна потеря данных
+C:\Users\eisne\source\repos\Project12CC\Project12CC\FileName.c(292,50): warning C4267: инициализация: преобразование из "size_t" в "DWORD"; возможна потеря данных
+  Project12CC.vcxproj -> C:\Users\eisne\source\repos\Project12CC\x64\Debug\Project12CC.exe
