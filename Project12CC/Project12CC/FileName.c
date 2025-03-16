@@ -7,7 +7,7 @@
 long get_file_size(const char* filename) {
     FILE* fp = fopen(filename, "rb");
     if (fp == NULL) {
-        perror("ГЋГёГЁГЎГЄГ  ГЇГ°ГЁ Г®ГІГЄГ°Г»ГІГЁГЁ ГґГ Г©Г«Г  Г¤Г«Гї Г®ГЇГ°ГҐГ¤ГҐГ«ГҐГ­ГЁГї Г°Г Г§Г¬ГҐГ°Г ");
+        perror("Ошибка при открытии файла для определения размера");
         return -1;
     }
 
@@ -29,14 +29,14 @@ char* read_file_content(const char* filename) {
 
     FILE* fp = fopen(filename, "r");
     if (fp == NULL) {
-        perror("ГЋГёГЁГЎГЄГ  ГЇГ°ГЁ Г®ГІГЄГ°Г»ГІГЁГЁ ГґГ Г©Г«Г  Г¤Г«Гї Г·ГІГҐГ­ГЁГї");
+        perror("Ошибка при открытии файла для чтения");
         return NULL;
     }
 
     char* buffer = (char*)malloc(file_size + 1); 
     if (buffer == NULL) {
         fclose(fp);
-        perror("ГЋГёГЁГЎГЄГ  ГўГ»Г¤ГҐГ«ГҐГ­ГЁГї ГЇГ Г¬ГїГІГЁ Г¤Г«Гї ГЎГіГґГҐГ°Г ");
+        perror("Ошибка выделения памяти для буфера");
         return NULL;
     }
 
@@ -44,7 +44,7 @@ char* read_file_content(const char* filename) {
     if (bytes_read != (size_t)file_size) {
         fclose(fp);
         free(buffer);
-        perror("ГЋГёГЁГЎГЄГ  ГЇГ°ГЁ Г·ГІГҐГ­ГЁГЁ ГґГ Г©Г«Г ");
+        perror("Ошибка при чтении файла");
         return NULL;
     }
 
@@ -57,7 +57,7 @@ char* read_file_content(const char* filename) {
 BOOL append_text_to_file(const char* filename, const char* text) {
     FILE* fp = fopen(filename, "a"); 
     if (fp == NULL) {
-        perror("ГЋГёГЁГЎГЄГ  ГЇГ°ГЁ Г®ГІГЄГ°Г»ГІГЁГЁ ГґГ Г©Г«Г  Г¤Г«Гї Г¤Г®ГЎГ ГўГ«ГҐГ­ГЁГї");
+        perror("Ошибка при открытии файла для добавления");
         return FALSE;
     }
 
@@ -65,7 +65,7 @@ BOOL append_text_to_file(const char* filename, const char* text) {
     size_t bytes_written = fwrite(text, 1, text_len, fp);
     if (bytes_written != text_len) {
         fclose(fp);
-        perror("ГЋГёГЁГЎГЄГ  ГЇГ°ГЁ Г§Г ГЇГЁГ±ГЁ Гў ГґГ Г©Г«");
+        perror("Ошибка при записи в файл");
         return FALSE;
     }
 
@@ -79,7 +79,7 @@ BOOL append_text_to_file(const char* filename, const char* text) {
 void writeToFile(const char* filename, const BYTE * text) {
     FILE* file = fopen(filename, "wb");
     if (file == NULL) {
-        perror("ГЋГёГЁГЎГЄГ  Г®ГІГЄГ°Г»ГІГЁГї ГґГ Г©Г«Г  Г¤Г«Гї Г§Г ГЇГЁГ±ГЁ");
+        perror("Ошибка открытия файла для записи");
         return;
     }
 
