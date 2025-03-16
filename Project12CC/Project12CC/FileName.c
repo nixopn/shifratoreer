@@ -97,6 +97,13 @@ int main() {
     }
     char* filename = "data.txt";
     int o = 0;
+    char* buffer = 0;
+    char* buffer22 = 0;
+    char* buffer66 = 0;
+    BYTE* dataToEncrypt = 0;
+
+    HCRYPTHASH yhash = 0;
+    HCRYPTKEY hkey = 0;
     while(o!=4){
         printf("1 for appending text to file \n 2 for ecnrypting text based on user input password \n 3 for decryption based on password (restart if you are ecnrypted before this session) \n 4 for exit \n 5 for chaning the filename (data.txt is base name) \n");
         scanf_s("%d", &o);
@@ -108,8 +115,7 @@ int main() {
                 char* buffer = malloc(size);
                 if (buffer == NULL) {
                     perror("Unable to allocate buffer");
-                    CryptReleaseContext(hprob, 0);
-                    return 1;
+                    goto cleanup;
                 }
                 if (fgets(buffer, size, stdin) != NULL) {
                     
@@ -118,14 +124,10 @@ int main() {
                 }
                 else {
                     perror("Error reading input");
-                    free(buffer);
-                    CryptReleaseContext(hprob, 0);
-                    return 1;
+                    goto cleanup;
                 }
                 append_text_to_file(filename, buffer);
-                free(buffer);
-                CryptReleaseContext(hprob, 0);
-                break;
+                goto cleanup;
             }
             case 2: {
                 printf("Enter the password \n");
@@ -133,8 +135,7 @@ int main() {
                 char* buffer = malloc(size);
                 if (buffer == NULL) {
                     perror("Unable to allocate buffer");
-                    CryptReleaseContext(hprob, 0);
-                    return 1;
+                    goto cleanup;
                 }
 
                 if (fgets(buffer, size, stdin) != NULL) {
@@ -144,36 +145,26 @@ int main() {
                 }
                 else {
                     perror("Error reading input");
-                    free(buffer);
-                    CryptReleaseContext(hprob, 0);
-                    return 1;
+                    goto cleanup;
                 }
 
-                HCRYPTHASH yhash;
+                /*HCRYPTHASH yhash;*/
                 if (!CryptCreateHash(hprob, CALG_MD5, 0, 0, &yhash)) {
                     printf("Error creating hash: %lu\n", GetLastError());
-                    free(buffer);
-                    CryptReleaseContext(hprob, 0);
-                    return 1;
+                    goto cleanup;
                 }
 
                 if (!CryptHashData(yhash, (BYTE*)buffer, strlen(buffer), 0)) {
                     printf("Error hashing data: %lu\n", GetLastError());
-                    CryptDestroyHash(yhash);
-                    free(buffer);
-                    CryptReleaseContext(hprob, 0);
-                    return 1;
+                    goto cleanup;
                 }
 
 
 
-                HCRYPTKEY hkey;
+                /*HCRYPTKEY hkey;*/
                 if (!CryptDeriveKey(hprob, CALG_RC4, yhash, 0, &hkey)) {
                     printf("Failed when creating key: %lu\n", GetLastError());
-                    CryptDestroyHash(yhash);
-                    free(buffer);
-                    CryptReleaseContext(hprob, 0);
-                    return 1;
+                    goto cleanup;
                 }
 
                 printf("Encrypting moment \n");
@@ -181,12 +172,7 @@ int main() {
                 char* buffer22 = read_file_content("data.txt");
                 if (buffer22 == NULL) {
                     perror("Unable to allocate buffer");
-                    CryptDestroyKey(hkey);
-                    CryptDestroyHash(yhash);
-                    free(buffer);
-                    free(buffer22);
-                    CryptReleaseContext(hprob, 0);
-                    return 1;
+                    goto cleanup;
                 }
 
                 printf("%s", buffer22);
@@ -202,13 +188,7 @@ int main() {
                 
                 if (!CryptEncrypt(hkey, 0, TRUE, 0, dataToEncrypt, &dataLen, dataLen)) {
                     printf("Error encrypting data: %lu\n", GetLastError());
-                    free(dataToEncrypt);
-                    CryptDestroyKey(hkey);
-                    CryptDestroyHash(yhash);
-                    free(buffer);
-                    free(buffer22);
-                    CryptReleaseContext(hprob, 0);
-                    return 1;
+                    goto cleanup;
                 }
 
                 printf("\n");
@@ -221,12 +201,9 @@ int main() {
                 }
                 printf("\n");
                 
-                CryptDestroyKey(hkey);
-                CryptDestroyHash(yhash);
-                free(buffer);
-                free(buffer22);
-                free(dataToEncrypt);
-                CryptReleaseContext(hprob, 0);
+
+                
+                goto cleanup;
                 break;
             }
             case 3: {
@@ -235,8 +212,7 @@ int main() {
                 char* buffer = malloc(size);
                 if (buffer == NULL) {
                     perror("Unable to allocate buffer");
-                    CryptReleaseContext(hprob, 0);
-                    return 1;
+                    goto cleanup;
                 }
 
                 if (fgets(buffer, size, stdin) != NULL) {
@@ -246,59 +222,39 @@ int main() {
                 }
                 else {
                     perror("Error reading input");
-                    free(buffer);
-                    CryptReleaseContext(hprob, 0);
-                    return 1;
+                    goto cleanup;
                 }
 
-                HCRYPTHASH yhash;
+                /*HCRYPTHASH yhash;*/
                 if (!CryptCreateHash(hprob, CALG_MD5, 0, 0, &yhash)) {
                     printf("Error creating hash: %lu\n", GetLastError());
-                    free(buffer);
-                    CryptReleaseContext(hprob, 0);
-                    return 1;
+                    goto cleanup;
                 }
 
                 if (!CryptHashData(yhash, (BYTE*)buffer, strlen(buffer), 0)) {
                     printf("Error hashing data: %lu\n", GetLastError());
-                    CryptDestroyHash(yhash);
-                    free(buffer);
-                    CryptReleaseContext(hprob, 0);
-                    return 1;
+                    goto cleanup;
                 }
 
 
 
-                HCRYPTKEY hkey;
+                /*HCRYPTKEY hkey;*/
                 if (!CryptDeriveKey(hprob, CALG_RC4, yhash, 0, &hkey)) {
                     printf("Failed when creating key: %lu\n", GetLastError());
-                    CryptDestroyHash(yhash);
-                    free(buffer);
-                    CryptReleaseContext(hprob, 0);
-                    return 1;
+                    goto cleanup;
                 }
 
                 char* buffer66 = read_file_content("data.txt");
                 if (buffer66 == NULL) {
                     perror("Unable to allocate buffer");
-                    CryptDestroyKey(hkey);
-                    CryptDestroyHash(yhash);
-                    free(buffer);
-                    free(buffer66);
-                    CryptReleaseContext(hprob, 0);
-                    return 1;
+                    goto cleanup;
                 }
 
                 DWORD dataLen = strlen(buffer66) + 1; 
                 
                 if (!CryptDecrypt(hkey, 0, TRUE, 0, buffer66, &dataLen)) {
                     printf("Error decrypting data: %lu\n", GetLastError());
-                    CryptDestroyKey(hkey);
-                    CryptDestroyHash(yhash);
-                    free(buffer);
-                    free(buffer66);
-                    CryptReleaseContext(hprob, 0);
-                    return 1;
+                    goto cleanup;
                 }
 
                 
@@ -307,12 +263,10 @@ int main() {
                 writeToFile("data.txt", buffer66);
 
                 
-                CryptDestroyKey(hkey);
-                CryptDestroyHash(yhash);
-                free(buffer);
-                free(buffer66);
-                CryptReleaseContext(hprob, 0);
-                break;
+
+                
+                goto cleanup;
+                
             }
             case 4: {
                 o = 4;
@@ -324,8 +278,7 @@ int main() {
                 char* buffer = malloc(size);
                 if (buffer == NULL) {
                     perror("Unable to allocate buffer");
-                    CryptReleaseContext(hprob, 0);
-                    return 1;
+                    goto cleanup;
                 }
 
                 if (fgets(buffer, size, stdin) != NULL) {
@@ -335,13 +288,39 @@ int main() {
                 }
                 else {
                     perror("Error reading input");
-                    free(buffer);
-                    CryptReleaseContext(hprob, 0);
-                    return 1;
+                    goto cleanup;
                 }
                 filename = buffer;
+                goto cleanup;
             }
+
+
         }
+        cleanup:
+            if (buffer) {
+                free(buffer);
+                buffer = NULL;
+            }
+            if (buffer22) {
+                free(buffer22);
+                buffer22 = NULL;
+            }
+            if (buffer66) {
+                free(buffer66);
+                buffer66 = NULL;
+            }
+            if (dataToEncrypt) {
+                free(dataToEncrypt);
+                dataToEncrypt = NULL;
+            }
+            if (hkey) {
+                CryptDestroyKey(hkey);
+                hkey = 0;
+            }
+            if (yhash) {
+                CryptDestroyHash(yhash);
+                yhash = 0;
+            }
     }
 
 
