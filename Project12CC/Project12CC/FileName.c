@@ -7,7 +7,7 @@
 long get_file_size(const char* filename) {
     FILE* fp = fopen(filename, "rb");
     if (fp == NULL) {
-        perror("Ошибка при открытии файла для определения размера");
+        perror("ГЋГёГЁГЎГЄГ  ГЇГ°ГЁ Г®ГІГЄГ°Г»ГІГЁГЁ ГґГ Г©Г«Г  Г¤Г«Гї Г®ГЇГ°ГҐГ¤ГҐГ«ГҐГ­ГЁГї Г°Г Г§Г¬ГҐГ°Г ");
         return -1;
     }
 
@@ -31,14 +31,14 @@ char* read_file_content(const char* filename) {
 
     FILE* fp = fopen(filename, "r");
     if (fp == NULL) {
-        perror("Ошибка при открытии файла для чтения");
+        perror("ГЋГёГЁГЎГЄГ  ГЇГ°ГЁ Г®ГІГЄГ°Г»ГІГЁГЁ ГґГ Г©Г«Г  Г¤Г«Гї Г·ГІГҐГ­ГЁГї");
         return NULL;
     }
 
     char* buffer = (char*)malloc(file_size + 1); 
     if (buffer == NULL) {
         fclose(fp);
-        perror("Ошибка выделения памяти для буфера");
+        perror("ГЋГёГЁГЎГЄГ  ГўГ»Г¤ГҐГ«ГҐГ­ГЁГї ГЇГ Г¬ГїГІГЁ Г¤Г«Гї ГЎГіГґГҐГ°Г ");
         return NULL;
     }
 
@@ -46,7 +46,7 @@ char* read_file_content(const char* filename) {
     if (bytes_read != (size_t)file_size) {
         fclose(fp);
         free(buffer);
-        perror("Ошибка при чтении файла");
+        perror("ГЋГёГЁГЎГЄГ  ГЇГ°ГЁ Г·ГІГҐГ­ГЁГЁ ГґГ Г©Г«Г ");
         return NULL;
     }
 
@@ -59,7 +59,7 @@ char* read_file_content(const char* filename) {
 BOOL append_text_to_file(const char* filename, const char* text) {
     FILE* fp = fopen(filename, "a"); 
     if (fp == NULL) {
-        perror("Ошибка при открытии файла для добавления");
+        perror("ГЋГёГЁГЎГЄГ  ГЇГ°ГЁ Г®ГІГЄГ°Г»ГІГЁГЁ ГґГ Г©Г«Г  Г¤Г«Гї Г¤Г®ГЎГ ГўГ«ГҐГ­ГЁГї");
         return FALSE;
     }
 
@@ -67,7 +67,7 @@ BOOL append_text_to_file(const char* filename, const char* text) {
     size_t bytes_written = fwrite(text, 1, text_len, fp);
     if (bytes_written != text_len) {
         fclose(fp);
-        perror("Ошибка при записи в файл");
+        perror("ГЋГёГЁГЎГЄГ  ГЇГ°ГЁ Г§Г ГЇГЁГ±ГЁ Гў ГґГ Г©Г«");
         return FALSE;
     }
 
@@ -95,14 +95,14 @@ HCRYPTKEY PBKDF1(char* password, BYTE* salt, int c, HCRYPTPROV hprob, int u, HCR
     if (!CryptCreateHash(hprob, CALG_SHA1, 0, 0, &yhash)) {
         printf("Error creating hash: %lu\n", GetLastError());
     }
-    BYTE* combined = (BYTE*)malloc(passwordLen + 20); // Выделяем память для объединения
+    BYTE* combined = (BYTE*)malloc(passwordLen + 20); // Г‚Г»Г¤ГҐГ«ГїГҐГ¬ ГЇГ Г¬ГїГІГј Г¤Г«Гї Г®ГЎГєГҐГ¤ГЁГ­ГҐГ­ГЁГї
     if (!combined) {
         fprintf(stderr, "Memory allocation failed\n");
         CryptDestroyHash(yhash);
         yhash = 0;
     }
-    memcpy(combined, password, passwordLen);          // Копируем пароль
-    memcpy(combined + passwordLen, salt, 20);          // Копируем соль
+    memcpy(combined, password, passwordLen);          
+    memcpy(combined + passwordLen, salt, 20);          
     for (int i = 0; i < c; i++) {
         if (!CryptHashData(yhash, combined, passwordLen + 20, 0)) {
             printf("Error hashing data: %lu\n", GetLastError());
@@ -132,7 +132,7 @@ HCRYPTKEY PBKDF1(char* password, BYTE* salt, int c, HCRYPTPROV hprob, int u, HCR
 void writeToFile(const char* filename, const BYTE * text) {
     FILE* file = fopen(filename, "wb");
     if (file == NULL) {
-        perror("Ошибка открытия файла для записи");
+        perror("ГЋГёГЁГЎГЄГ  Г®ГІГЄГ°Г»ГІГЁГї ГґГ Г©Г«Г  Г¤Г«Гї Г§Г ГЇГЁГ±ГЁ");
         return;
     }
 
