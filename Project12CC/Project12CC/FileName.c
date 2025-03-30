@@ -20,6 +20,8 @@ long get_file_size(const char* filename) {
 
 
 
+#define SALT_SIZE 16;
+#define ITERATIONS 1000;
 
 char* read_file_content(const char* filename) {
     long file_size = get_file_size(filename);
@@ -76,6 +78,57 @@ BOOL append_text_to_file(const char* filename, const char* text) {
 
 
 
+HCRYPTKEY PBKDF1(char* password, BYTE* salt, int c, HCRYPTPROV hprob, int u, HCRYPTHASH yhash) {
+
+
+    HCRYPTKEY outputkey;
+    if (u != 202) {
+        if (!CryptGenRandom(hprob, 20, salt)) {
+            fprintf(stderr, "CryptGenRandom failed: %x\n", GetLastError());
+        }
+    }
+
+
+
+    DWORD passwordLen = strlen(password);
+    /*HCRYPTHASH yhash;*/
+    if (!CryptCreateHash(hprob, CALG_SHA1, 0, 0, &yhash)) {
+        printf("Error creating hash: %lu\n", GetLastError());
+    }
+    BYTE* combined = (BYTE*)malloc(passwordLen + 20); // Выделяем память для объединения
+    if (!combined) {
+        fprintf(stderr, "Memory allocation failed\n");
+        CryptDestroyHash(yhash);
+        yhash = 0;
+    }
+    memcpy(combined, password, passwordLen);          // Копируем пароль
+    memcpy(combined + passwordLen, salt, 20);          // Копируем соль
+    for (int i = 0; i < c; i++) {
+        if (!CryptHashData(yhash, combined, passwordLen + 20, 0)) {
+            printf("Error hashing data: %lu\n", GetLastError());
+            free(combined);
+            CryptDestroyHash(yhash);
+            yhash = 0;
+        }
+    }
+    if (!CryptDeriveKey(hprob, CALG_RC4, yhash, 0, &outputkey)) {
+        printf("Failed when creating key: %lu\n", GetLastError());
+        free(combined);
+        CryptDestroyHash(yhash);
+        yhash = 0;
+    }
+    if (combined) {
+        free(combined);
+        combined = NULL;
+    }
+
+    if (yhash && u!=202) {
+        CryptDestroyHash(yhash);
+        yhash = 0;
+    }
+    return outputkey;
+}
+
 void writeToFile(const char* filename, const BYTE * text) {
     FILE* file = fopen(filename, "wb");
     if (file == NULL) {
@@ -86,6 +139,7 @@ void writeToFile(const char* filename, const BYTE * text) {
     fprintf(file, "%s", text); 
     fclose(file);
 }
+
 
 
 
@@ -101,6 +155,9 @@ int main() {
     char* buffer22 = 0;
     char* buffer66 = 0;
     BYTE* dataToEncrypt = 0;
+    BYTE* salt = 0;
+    int u = 0;
+
 
     HCRYPTHASH yhash = 0;
     HCRYPTKEY hkey = 0;
@@ -148,11 +205,15 @@ int main() {
                     goto cleanup;
                 }
 
+
+
                 /*HCRYPTHASH yhash;*/
                 if (!CryptCreateHash(hprob, CALG_MD5, 0, 0, &yhash)) {
                     printf("Error creating hash: %lu\n", GetLastError());
                     goto cleanup;
                 }
+
+
 
                 if (!CryptHashData(yhash, (BYTE*)buffer, strlen(buffer), 0)) {
                     printf("Error hashing data: %lu\n", GetLastError());
@@ -190,7 +251,7 @@ int main() {
                     printf("Error encrypting data: %lu\n", GetLastError());
                     goto cleanup;
                 }
-
+                
                 printf("\n");
 
                 writeToFile("data.txt", dataToEncrypt);
@@ -293,6 +354,147 @@ int main() {
                 filename = buffer;
                 goto cleanup;
             }
+            case 6: {
+                printf("Enter the password \n");
+                size_t size = 128;
+                char* buffer = malloc(size);
+                if (buffer == NULL) {
+                    perror("Unable to allocate buffer");
+                    goto cleanup;
+                }
+
+                if (fgets(buffer, size, stdin) != NULL) {
+
+                    buffer[strcspn(buffer, "\n")] = 0;
+                    printf("You entered: %s\n", buffer);
+                }
+                else {
+                    perror("Error reading input");
+                    goto cleanup;
+                }
+
+
+
+
+
+
+                
+                salt = (BYTE*)malloc(20);
+                hkey = PBKDF1(buffer, salt, 10, hprob, u, yhash);
+                append_text_to_file("salt.txt", salt);
+
+                printf("Encrypting moment \n");
+                size_t aaaa = 0;
+                char* buffer22 = read_file_content("data.txt");
+                if (buffer22 == NULL) {
+                    perror("Unable to allocate buffer");
+                    goto cleanup;
+                }
+
+                printf("%s", buffer22);
+
+
+                printf("\n");
+
+
+                DWORD dataLen = strlen(buffer22) + 1;
+                BYTE* dataToEncrypt = (BYTE*)malloc(dataLen);
+                memcpy(dataToEncrypt, buffer22, dataLen);
+
+
+                if (!CryptEncrypt(hkey, 0, TRUE, 0, dataToEncrypt, &dataLen, dataLen)) {
+                    printf("Error encrypting data: %lu\n", GetLastError());
+                    goto cleanup;
+                }
+
+                printf("\n");
+
+                writeToFile("data.txt", dataToEncrypt);
+
+                printf("Encrypted data: ");
+                for (DWORD i = 0; i < dataLen; i++) {
+                    printf("%x ", dataToEncrypt[i]);
+                }
+                printf("\n");
+
+
+
+                goto cleanup;
+                break;
+            }
+            case 7: {
+                printf("Enter the password \n");
+                size_t size = 128;
+                char* buffer = malloc(size);
+                if (buffer == NULL) {
+                    perror("Unable to allocate buffer");
+                    goto cleanup;
+                }
+
+                if (fgets(buffer, size, stdin) != NULL) {
+
+                    buffer[strcspn(buffer, "\n")] = 0;
+                    printf("You entered: %s\n", buffer);
+                }
+                else {
+                    perror("Error reading input");
+                    goto cleanup;
+                }
+
+
+
+
+
+
+                int p = get_file_size("salt.txt");
+                salt = malloc(p);
+                salt = (BYTE*)read_file_content("salt.txt");
+                u = 202;
+                hkey = PBKDF1(buffer, salt, 10, hprob, u, yhash);
+
+                printf("Encrypting moment \n");
+                size_t aaaa = 0;
+                char* buffer22 = read_file_content("data.txt");
+                if (buffer22 == NULL) {
+                    perror("Unable to allocate buffer");
+                    goto cleanup;
+                }
+
+                printf("%s", buffer22);
+
+
+                printf("\n");
+
+
+                DWORD dataLen = strlen(buffer22) + 1;
+                BYTE* dataToEncrypt = (BYTE*)malloc(dataLen);
+                memcpy(dataToEncrypt, buffer22, dataLen);
+
+                
+                if (!CryptDeriveKey(hprob, CALG_RC4, yhash, 0, &hkey)) {
+                    printf("Failed when creating key: %lu\n", GetLastError());
+                    goto cleanup;
+                }
+
+                char* buffer66 = read_file_content("data.txt");
+                if (buffer66 == NULL) {
+                    perror("Unable to allocate buffer");
+                    goto cleanup;
+                }
+
+                dataLen = strlen(buffer66) + 1;
+
+                if (!CryptDecrypt(hkey, 0, TRUE, 0, buffer66, &dataLen)) {
+                    printf("Error decrypting data: %lu\n", GetLastError());
+                    goto cleanup;
+                }
+
+
+                printf(" \n Decrypted data: %s\n", buffer66);
+
+                writeToFile("data.txt", buffer66);
+            }
+
 
 
         }
@@ -320,6 +522,10 @@ int main() {
             if (yhash) {
                 CryptDestroyHash(yhash);
                 yhash = 0;
+            }
+            if (salt) {
+                free(salt);
+                salt = NULL;
             }
     }
 
