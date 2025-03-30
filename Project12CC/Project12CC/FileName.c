@@ -95,7 +95,7 @@ HCRYPTKEY PBKDF1(char* password, BYTE* salt, int c, HCRYPTPROV hprob, int u, HCR
     if (!CryptCreateHash(hprob, CALG_SHA1, 0, 0, &yhash)) {
         printf("Error creating hash: %lu\n", GetLastError());
     }
-    BYTE* combined = (BYTE*)malloc(passwordLen + 20); // Âûäåëÿåì ïàìÿòü äëÿ îáúåäèíåíèÿ
+    BYTE* combined = (BYTE*)malloc(passwordLen + 20); 
     if (!combined) {
         fprintf(stderr, "Memory allocation failed\n");
         CryptDestroyHash(yhash);
