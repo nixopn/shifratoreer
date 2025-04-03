@@ -471,10 +471,6 @@ int main() {
                 memcpy(dataToEncrypt, buffer22, dataLen);
 
                 
-                if (!CryptDeriveKey(hprob, CALG_RC4, yhash, 0, &hkey)) {
-                    printf("Failed when creating key: %lu\n", GetLastError());
-                    goto cleanup;
-                }
 
                 char* buffer66 = read_file_content("data.txt");
                 if (buffer66 == NULL) {
