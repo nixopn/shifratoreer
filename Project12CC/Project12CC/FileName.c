@@ -472,6 +472,8 @@ int main() {
 
                 
 
+
+                
                 char* buffer66 = read_file_content("data.txt");
                 if (buffer66 == NULL) {
                     perror("Unable to allocate buffer");
